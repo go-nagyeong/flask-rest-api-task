@@ -1,5 +1,6 @@
 from api.database import db
 from api.models.user import User
+from api.errors import AccountNotExistError
 
 def get_user_by_id(id):
     return User.query.filter_by(id=id).first()
@@ -8,5 +9,5 @@ def get_user_by_id(id):
 def check_user(id):
     user = get_user_by_id(id)
     if not user:
-        return False
+        raise AccountNotExistError
     return user

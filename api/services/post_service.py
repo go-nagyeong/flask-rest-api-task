@@ -2,6 +2,7 @@ from api.database import db
 from api.models.post import Post
 from api.services.user_service import get_user_by_id
 from api.services.block_service import get_block_by_id
+from api.errors import InvalidTitleError, InvalidContentError, PostNotExistError
 
 def get_post_by_user_id(id):
     user = get_user_by_id(id)
@@ -18,28 +19,35 @@ def get_all_post(user_id):
 
 # 게시글 작성
 def add_post(user_id, title, content):
-    try:
-        user = get_user_by_id(user_id)
-        post = Post(author=user, title=title, content=content)
-        db.session.add(post)
-        db.session.commit()
-        return post
-    except:
-        db.session.rollback()
-        raise
+    # 제목과 내용 유효성 검사
+    if not title:
+        raise InvalidTitleError
+    if not content:
+        raise InvalidContentError
+
+    user = get_user_by_id(user_id)
+    post = Post(author=user, title=title, content=content)
+
+    db.session.add(post)
+    db.session.commit()
+    return post
 
 # 게시글 수정
 def update_post(post_id, title, content):
     post = get_post_by_post_id(post_id)
+    # 존재하지 않는 게시물 예외 처리
+    if not post:
+        raise PostNotExistError
+
     post.update(title, content)
     return post
 
 # 게시글 삭제
 def delete_post(post_id):
-    try:
-        post = get_post_by_post_id(post_id)
-        db.session.delete(post)
-        db.session.commit()
-    except:
-        db.session.rollback()
-        raise
+    post = get_post_by_post_id(post_id)
+    # 존재하지 않는 게시물 예외 처리
+    if not post:
+        raise PostNotExistError
+
+    db.session.delete(post)
+    db.session.commit()
