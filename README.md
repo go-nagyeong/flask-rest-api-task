@@ -10,6 +10,7 @@ underpin-task/
 │   ├── __init__.py
 │   ├── routes.py
 │   ├── database.py
+│   ├── errors.py
 │   ├── models/
 │   │   ├── user.py
 │   │   ├── block.py
